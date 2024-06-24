@@ -7,6 +7,9 @@ const cors = require("cors");
 const app = express();
 app.use(cors());
 
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "../client/build")));
+
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
@@ -69,6 +72,11 @@ io.on("connection", (socket) => {
       io.to(sessionId).emit("updateUsers", sessions[sessionId].users);
     }
   });
+});
+
+// Serve React app for all other routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/build", "index.html"));
 });
 
 const PORT = process.env.PORT || 4000;
