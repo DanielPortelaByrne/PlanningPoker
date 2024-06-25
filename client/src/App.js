@@ -5,6 +5,8 @@ import "./App.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faShareAlt } from "@fortawesome/free-solid-svg-icons";
 import { Helmet } from "react-helmet";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const socket = io("https://salty-reaches-84979-54a9f5a024dc.herokuapp.com/");
 
@@ -59,6 +61,11 @@ function App() {
   }, []);
 
   const createSession = () => {
+    if (!userName.trim()) {
+      toast.error("Please enter your name to create a session.");
+      return;
+    }
+
     socket.emit("createSession", (sessionId) => {
       setSessionId(sessionId);
       setIsHost(true);
@@ -67,13 +74,22 @@ function App() {
   };
 
   const joinSession = (sessionId) => {
+    if (!userName.trim()) {
+      toast.error("Please enter your name to join a session.");
+      return;
+    }
+    if (!sessionId.trim()) {
+      toast.error("Please enter a session ID to join a session.");
+      return;
+    }
+
     socket.emit("joinSession", { sessionId, userName }, (response) => {
       if (response.success) {
         console.log("Joined session!");
         setJoined(true);
       } else {
         console.log("Failed to join session:", response.message);
-        alert(response.message);
+        toast.error(response.message);
       }
     });
   };
@@ -84,7 +100,14 @@ function App() {
   };
 
   const revealCards = () => {
-    console.log("revealCards called");
+    const numberOfUsers = users.length;
+    const numberOfEstimates = estimates.length;
+
+    if (numberOfEstimates < numberOfUsers) {
+      toast.warn("Wait for all participants to submit their estimates.");
+      return;
+    }
+
     socket.emit("revealCards", sessionId);
   };
 
@@ -118,12 +141,17 @@ function App() {
     const sessionLink = `${window.location.origin}?session=${sessionId}`;
     navigator.clipboard.writeText(sessionLink).then(
       () => {
-        alert("Session link copied to clipboard!");
+        toast.success("Session link copied to clipboard!");
       },
       (err) => {
         console.error("Failed to copy session link: ", err);
+        toast.error("Failed to copy session link.");
       }
     );
+  };
+
+  const hasUserVoted = (userName) => {
+    return estimates.some((est) => est.userName === userName);
   };
 
   return (
@@ -134,6 +162,17 @@ function App() {
           rel="stylesheet"
         />
       </Helmet>
+      <ToastContainer
+        position="top-center"
+        autoClose={1200} // Default duration for all toasts
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       {!joined ? (
         <div className="session-container">
           <img
@@ -146,6 +185,9 @@ function App() {
             placeholder="YOUR NAME"
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") joinSession(sessionId);
+            }}
             className="input"
           />
           <div className="session-card-container">
@@ -163,6 +205,9 @@ function App() {
                   placeholder="SESSION ID"
                   value={sessionId}
                   onChange={(e) => setSessionId(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") joinSession(sessionId);
+                  }}
                   className="input"
                 />
                 <button
@@ -231,7 +276,7 @@ function App() {
                       }
                     </p>
                   ) : (
-                    <p>?</p>
+                    <p>{hasUserVoted(user.name) ? "✔" : "?"}</p>
                   )}
                 </div>
               ))}
