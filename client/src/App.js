@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { Helmet } from "react-helmet";
 
-const socket = io("http://localhost:4000");
+const socket = io("https://salty-reaches-84979-54a9f5a024dc.herokuapp.com/");
 
 const fibonacciSequence = [1, 2, 3, 5, 8, 13, 21];
 
