@@ -1,84 +1,100 @@
 // server/index.js
 const express = require("express");
 const http = require("http");
-const socketIo = require("socket.io");
+const { Server } = require("socket.io");
 const cors = require("cors");
-const path = require("path"); // Add this line
 
 const app = express();
 app.use(cors());
 
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, "../client/build")));
-
 const server = http.createServer(app);
-const io = socketIo(server, {
+const io = new Server(server, {
   cors: {
     origin: "*",
-    methods: ["GET", "POST"],
   },
 });
 
-const sessions = {};
+let sessions = {};
+
+const generateSessionId = () => {
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let sessionId = "";
+  for (let i = 0; i < 4; i++) {
+    sessionId += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return sessionId;
+};
 
 io.on("connection", (socket) => {
-  console.log("New client connected");
+  console.log("A user connected");
 
   socket.on("createSession", (callback) => {
-    const sessionId = Math.random().toString(36).substring(2, 15);
-    sessions[sessionId] = { users: [], estimates: [] }; // Store estimates in session
+    const sessionId = generateSessionId();
+    sessions[sessionId] = { users: [], estimates: [] };
+    socket.join(sessionId);
     callback(sessionId);
   });
 
   socket.on("joinSession", ({ sessionId, userName }, callback) => {
-    if (sessions[sessionId]) {
-      socket.join(sessionId);
-      const user = { id: socket.id, name: userName };
-      sessions[sessionId].users.push(user);
-      io.to(sessionId).emit("updateUsers", sessions[sessionId].users);
-      callback({ success: true });
+    const session = sessions[sessionId];
+    if (session) {
+      if (!session.users.some((user) => user.name === userName)) {
+        session.users.push({ id: socket.id, name: userName });
+        socket.join(sessionId);
+        callback({ success: true });
+        io.to(sessionId).emit("updateUsers", session.users);
+      } else {
+        callback({
+          success: false,
+          message: "Username already taken in this session.",
+        });
+      }
     } else {
-      callback({ success: false, message: "Session not found" });
+      callback({ success: false, message: "Session not found." });
     }
   });
 
   socket.on("sendEstimate", ({ sessionId, estimate, userName }) => {
-    if (sessions[sessionId]) {
-      sessions[sessionId].estimates.push({ userName, estimate });
-      io.to(sessionId).emit("receiveEstimate", { userName, estimate }); // Send to all clients in the session
+    const session = sessions[sessionId];
+    if (session) {
+      session.estimates.push({ userName, estimate });
+      io.to(sessionId).emit("receiveEstimate", { userName, estimate });
     }
   });
 
   socket.on("revealCards", (sessionId) => {
-    console.log("Reveal cards server side");
-    if (sessions[sessionId]) {
+    console.log("revealCards event triggered");
+    const session = sessions[sessionId];
+    if (session) {
       io.to(sessionId).emit("revealCards");
     }
   });
 
   socket.on("resetVote", (sessionId) => {
-    console.log("Reset vote server side");
-    if (sessions[sessionId]) {
-      sessions[sessionId].estimates = [];
+    console.log("resetVote event triggered");
+    const session = sessions[sessionId];
+    if (session) {
+      session.estimates = [];
       io.to(sessionId).emit("resetVote");
     }
   });
 
   socket.on("disconnect", () => {
-    console.log("Client disconnected");
+    console.log("A user disconnected");
     for (const sessionId in sessions) {
-      sessions[sessionId].users = sessions[sessionId].users.filter(
-        (user) => user.id !== socket.id
-      );
-      io.to(sessionId).emit("updateUsers", sessions[sessionId].users);
+      const session = sessions[sessionId];
+      session.users = session.users.filter((user) => user.id !== socket.id);
+      if (session.users.length === 0) {
+        delete sessions[sessionId];
+      } else {
+        io.to(sessionId).emit("updateUsers", session.users);
+      }
     }
   });
 });
 
-// Serve React app for all other routes
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/build", "index.html"));
+const port = process.env.PORT || 4000;
+server.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
-
-const PORT = process.env.PORT || 4000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

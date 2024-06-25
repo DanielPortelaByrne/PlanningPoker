@@ -87,6 +87,33 @@ body {
   gap: 10px;
 }
 
+.share-button {
+  background-color: #007bff; /* Green background */
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.share-button:hover {
+  background-color: white;
+  color: rgb(83, 83, 83);
+  border: none;
+}
+
+/* Ensure the icon is vertically centered within the button */
+.share-button .fa-share-alt {
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
 /* client/src/App.css */
 @keyframes flip {
   0% {

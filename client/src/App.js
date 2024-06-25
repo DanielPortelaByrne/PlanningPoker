@@ -1,13 +1,14 @@
 // client/src/App.js
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
-import "./App.css"; // Import the CSS file for styling
-// Import necessary FontAwesome components
+import "./App.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faShareAlt } from "@fortawesome/free-solid-svg-icons";
 import { Helmet } from "react-helmet";
 
 const socket = io("https://salty-reaches-84979-54a9f5a024dc.herokuapp.com/");
+
+// const socket = io("http://localhost:4000");
 
 const fibonacciSequence = [1, 2, 3, 5, 8, 13, 21];
 
@@ -19,27 +20,31 @@ function App() {
   const [estimates, setEstimates] = useState([]);
   const [selectedCard, setSelectedCard] = useState(null);
   const [revealed, setRevealed] = useState(false);
-  const [isHost, setIsHost] = useState(false); // State to track host status
-  const [flipCard, setFlipCard] = useState(false); // State to control flip animation
+  const [isHost, setIsHost] = useState(false);
+  const [flipCard, setFlipCard] = useState(false);
 
   useEffect(() => {
     console.log("App component rendered");
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionCodeFromUrl = urlParams.get("session");
+
+    if (sessionCodeFromUrl) {
+      setSessionId(sessionCodeFromUrl);
+    }
+
     socket.on("receiveEstimate", (estimate) => {
-      // console.log("receiveEstimate event received with estimate:", estimate);
-      // console.log("revealed:", revealed);
       setEstimates((prev) => [...prev, estimate]);
     });
 
     socket.on("updateUsers", (users) => {
-      // console.log("updateUsers event received with users:", users);
       setUsers(users);
     });
 
     socket.on("revealCards", () => {
       console.log("revealCards event received");
       setRevealed(true);
-      setFlipCard(true); // Trigger flip animation when cards are revealed
+      setFlipCard(true);
     });
 
     socket.on("resetVote", () => {
@@ -47,24 +52,21 @@ function App() {
       setEstimates([]);
       setSelectedCard(null);
       setRevealed(false);
-      setFlipCard(false); // Reset flip animation state
+      setFlipCard(false);
     });
 
     return () => socket.off();
   }, []);
 
   const createSession = () => {
-    // console.log("createSession called");
     socket.emit("createSession", (sessionId) => {
-      // console.log("Created session with ID:", sessionId);
       setSessionId(sessionId);
-      setIsHost(true); // Set host status upon session creation
+      setIsHost(true);
       joinSession(sessionId);
     });
   };
 
   const joinSession = (sessionId) => {
-    // console.log("joinSession called with sessionId:", sessionId);
     socket.emit("joinSession", { sessionId, userName }, (response) => {
       if (response.success) {
         console.log("Joined session!");
@@ -77,7 +79,6 @@ function App() {
   };
 
   const sendEstimate = (card) => {
-    // console.log("sendEstimate called with card:", card);
     setSelectedCard(card);
     socket.emit("sendEstimate", { sessionId, estimate: card, userName });
   };
@@ -113,9 +114,17 @@ function App() {
     );
   };
 
-  useEffect(() => {
-    console.log("Current revealed state:", revealed);
-  }, [revealed]);
+  const copySessionLink = () => {
+    const sessionLink = `${window.location.origin}?session=${sessionId}`;
+    navigator.clipboard.writeText(sessionLink).then(
+      () => {
+        alert("Session link copied to clipboard!");
+      },
+      (err) => {
+        console.error("Failed to copy session link: ", err);
+      }
+    );
+  };
 
   return (
     <div className="App">
@@ -178,8 +187,11 @@ function App() {
           <div className="session-details">
             <div className="session-info">
               <h2>SESSION ID: {sessionId}</h2>
+              <button className="share-button" onClick={copySessionLink}>
+                <FontAwesomeIcon icon={faShareAlt} />
+              </button>
               <p className="user-name">
-                <FontAwesomeIcon icon={faUser} style={{ marginRight: "5px" }} />{" "}
+                <FontAwesomeIcon icon={faUser} style={{ marginRight: "5px" }} />
                 {userName}
               </p>
             </div>
