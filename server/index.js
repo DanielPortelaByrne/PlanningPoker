@@ -3,6 +3,7 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 app.use(cors());
@@ -16,6 +17,12 @@ const io = new Server(server, {
 
 let sessions = {};
 
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "../client/build")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/build", "index.html"));
+});
 const generateSessionId = () => {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
