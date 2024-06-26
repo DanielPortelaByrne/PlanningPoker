@@ -8,7 +8,7 @@ import { Helmet } from "react-helmet";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const socket = io("https://salty-reaches-84979-54a9f5a024dc.herokuapp.com/");
+const socket = io("https://planningpokerpointing-7077e0d0c07d.herokuapp.com/");
 
 // const socket = io("http://localhost:4000");
 
@@ -24,6 +24,7 @@ function App() {
   const [revealed, setRevealed] = useState(false);
   const [isHost, setIsHost] = useState(false);
   const [flipCard, setFlipCard] = useState(false);
+  const [flippedCards, setFlippedCards] = useState([]); // New state to track flipped cards
 
   useEffect(() => {
     console.log("App component rendered");
@@ -47,6 +48,7 @@ function App() {
       console.log("revealCards event received");
       setRevealed(true);
       setFlipCard(true);
+      setFlippedCards(users.map((user, index) => index)); // Flip all cards
     });
 
     socket.on("resetVote", () => {
@@ -55,10 +57,11 @@ function App() {
       setSelectedCard(null);
       setRevealed(false);
       setFlipCard(false);
+      setFlippedCards([]); // Reset flipped cards
     });
 
     return () => socket.off();
-  }, []);
+  }, [users]);
 
   const createSession = () => {
     if (!userName.trim()) {
