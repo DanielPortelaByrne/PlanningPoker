@@ -98,6 +98,12 @@ function App() {
       if (response.success) {
         console.log("Joined session!");
         setJoined(true);
+        setEstimates(response.estimates || []);
+        setRevealed(response.revealed || false);
+        if (response.revealed) {
+          setFlipCard(true);
+          setFlippedCards(users.map((user, index) => index));
+        }
       } else {
         console.log("Failed to join session:", response.message);
         toast.error(response.message);
@@ -160,6 +166,7 @@ function App() {
       const user = users.find((user) => user.name === est.userName);
       return user && !user.spectate;
     });
+
     if (filteredEstimates.length === 0) return 0;
     const sum = filteredEstimates.reduce(
       (total, est) => total + est.estimate,

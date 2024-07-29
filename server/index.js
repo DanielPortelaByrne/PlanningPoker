@@ -51,7 +51,11 @@ io.on("connection", (socket) => {
         session.users.push({ id: socket.id, name: userName, spectate: false });
         socket.join(sessionId);
         console.log(`${userName} joined session ${sessionId}`);
-        callback({ success: true });
+        callback({
+          success: true,
+          estimates: session.estimates,
+          revealed: session.revealed,
+        });
         io.to(sessionId).emit("updateUsers", session.users);
       } else {
         callback({
@@ -79,6 +83,7 @@ io.on("connection", (socket) => {
     console.log("revealCards event triggered");
     const session = sessions[sessionId];
     if (session) {
+      session.revealed = true; // Add this line to store reveal status
       io.to(sessionId).emit("revealCards");
     }
   });
@@ -88,6 +93,7 @@ io.on("connection", (socket) => {
     const session = sessions[sessionId];
     if (session) {
       session.estimates = [];
+      session.revealed = false; // Add this line to reset reveal status
       io.to(sessionId).emit("resetVote");
     }
   });
