@@ -37,7 +37,18 @@ function App() {
 
     socket.on("receiveEstimate", (estimate) => {
       console.log("Received estimate:", estimate);
-      setEstimates((prev) => [...prev, estimate]);
+      setEstimates((prev) => {
+        const index = prev.findIndex(
+          (est) => est.userName === estimate.userName
+        );
+        if (index > -1) {
+          const newEstimates = [...prev];
+          newEstimates[index] = estimate;
+          return newEstimates;
+        } else {
+          return [...prev, estimate];
+        }
+      });
     });
 
     socket.on("updateUsers", (users) => {

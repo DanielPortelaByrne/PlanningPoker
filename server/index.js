@@ -71,7 +71,14 @@ io.on("connection", (socket) => {
   socket.on("sendEstimate", ({ sessionId, estimate, userName }) => {
     const session = sessions[sessionId];
     if (session) {
-      session.estimates.push({ userName, estimate });
+      const existingEstimateIndex = session.estimates.findIndex(
+        (est) => est.userName === userName
+      );
+      if (existingEstimateIndex > -1) {
+        session.estimates[existingEstimateIndex] = { userName, estimate };
+      } else {
+        session.estimates.push({ userName, estimate });
+      }
       console.log(
         `Estimate received from ${userName} in session ${sessionId}: ${estimate}`
       );
@@ -83,7 +90,7 @@ io.on("connection", (socket) => {
     console.log("revealCards event triggered");
     const session = sessions[sessionId];
     if (session) {
-      session.revealed = true; // Add this line to store reveal status
+      session.revealed = true; // Store reveal status
       io.to(sessionId).emit("revealCards");
     }
   });
@@ -93,7 +100,7 @@ io.on("connection", (socket) => {
     const session = sessions[sessionId];
     if (session) {
       session.estimates = [];
-      session.revealed = false; // Add this line to reset reveal status
+      session.revealed = false; // Reset reveal status
       io.to(sessionId).emit("resetVote");
     }
   });
