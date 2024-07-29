@@ -284,20 +284,21 @@ function App() {
                 {userName}
               </p>
             </div>
+            {!revealed && (
+              <div className="spectate-toggle">
+                <label className="switch">
+                  <input
+                    type="checkbox"
+                    checked={spectateMode}
+                    onChange={toggleSpectateMode}
+                  />
+                  <span className="slider round"></span>
+                </label>
+                <h2>SPECTATE MODE {spectateMode ? "ON" : "OFF"}</h2>
+              </div>
+            )}
           </div>
-          {!revealed && (
-            <div className="spectate-toggle">
-              <label className="switch">
-                <input
-                  type="checkbox"
-                  checked={spectateMode}
-                  onChange={toggleSpectateMode}
-                />
-                <span className="slider round"></span>
-              </label>
-              <span>Spectate mode {spectateMode ? "ON" : "OFF"}</span>
-            </div>
-          )}
+
           {revealed && (
             <div className="average-closest-container">
               <div className={`average-card ${flipCard ? "flip" : ""}`}>
