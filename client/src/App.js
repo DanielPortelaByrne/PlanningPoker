@@ -1,4 +1,3 @@
-// client/src/App.js
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import "./App.css";
@@ -8,11 +7,8 @@ import { Helmet } from "react-helmet";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const socket = io(
-  "https://planning-poker-pointing-9f9b8406bb5e.herokuapp.com/"
-);
-
-// const socket = io("http://localhost:4000");
+// const socket = io("https://planning-poker-pointing-9f9b8406bb5e.herokuapp.com/");
+const socket = io("http://localhost:4000");
 
 const fibonacciSequence = [1, 2, 3, 5, 8, 13, 21];
 
@@ -26,7 +22,8 @@ function App() {
   const [revealed, setRevealed] = useState(false);
   const [isHost, setIsHost] = useState(false);
   const [flipCard, setFlipCard] = useState(false);
-  const [flippedCards, setFlippedCards] = useState([]); // New state to track flipped cards
+  const [flippedCards, setFlippedCards] = useState([]);
+  const [spectateMode, setSpectateMode] = useState(false);
 
   useEffect(() => {
     console.log("App component rendered");
@@ -39,10 +36,12 @@ function App() {
     }
 
     socket.on("receiveEstimate", (estimate) => {
+      console.log("Received estimate:", estimate);
       setEstimates((prev) => [...prev, estimate]);
     });
 
     socket.on("updateUsers", (users) => {
+      console.log("Updated users:", users);
       setUsers(users);
     });
 
@@ -50,7 +49,14 @@ function App() {
       console.log("revealCards event received");
       setRevealed(true);
       setFlipCard(true);
-      setFlippedCards(users.map((user, index) => index)); // Flip all cards
+      setFlippedCards(users.map((user, index) => index));
+      setEstimates((prevEstimates) =>
+        users.map((user) =>
+          user.spectate
+            ? { userName: user.name, estimate: "👁️" }
+            : prevEstimates.find((est) => est.userName === user.name) || {}
+        )
+      );
     });
 
     socket.on("resetVote", () => {
@@ -59,7 +65,7 @@ function App() {
       setSelectedCard(null);
       setRevealed(false);
       setFlipCard(false);
-      setFlippedCards([]); // Reset flipped cards
+      setFlippedCards([]);
     });
 
     return () => socket.off();
@@ -100,13 +106,22 @@ function App() {
   };
 
   const sendEstimate = (card) => {
-    setSelectedCard(card);
-    socket.emit("sendEstimate", { sessionId, estimate: card, userName });
+    if (!spectateMode) {
+      setSelectedCard(card);
+      socket.emit("sendEstimate", { sessionId, estimate: card, userName });
+    }
   };
 
   const revealCards = () => {
-    const numberOfUsers = users.length;
+    const numberOfUsers = users.filter((user) => !user.spectate).length;
     const numberOfEstimates = estimates.length;
+
+    console.log(
+      "Number of users (excluding spectators):",
+      numberOfUsers,
+      "Number of estimates:",
+      numberOfEstimates
+    );
 
     if (numberOfEstimates < numberOfUsers) {
       toast.warn("Wait for all participants to submit their estimates.");
@@ -130,10 +145,27 @@ function App() {
     }
   };
 
+  const toggleSpectateMode = () => {
+    setSpectateMode((prevMode) => !prevMode);
+    socket.emit("toggleSpectateMode", {
+      sessionId,
+      userName,
+      spectate: !spectateMode,
+    });
+    console.log(`${userName} set spectate mode to ${!spectateMode}`);
+  };
+
   const calculateAverageEstimate = () => {
-    if (estimates.length === 0) return 0;
-    const sum = estimates.reduce((total, est) => total + est.estimate, 0);
-    return sum / estimates.length;
+    const filteredEstimates = estimates.filter((est) => {
+      const user = users.find((user) => user.name === est.userName);
+      return user && !user.spectate;
+    });
+    if (filteredEstimates.length === 0) return 0;
+    const sum = filteredEstimates.reduce(
+      (total, est) => total + est.estimate,
+      0
+    );
+    return sum / filteredEstimates.length;
   };
 
   const findClosestFibonacci = (num) => {
@@ -169,7 +201,7 @@ function App() {
       </Helmet>
       <ToastContainer
         position="top-center"
-        autoClose={1200} // Default duration for all toasts
+        autoClose={1200}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick
@@ -246,6 +278,19 @@ function App() {
               </p>
             </div>
           </div>
+          {!revealed && (
+            <div className="spectate-toggle">
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={spectateMode}
+                  onChange={toggleSpectateMode}
+                />
+                <span className="slider round"></span>
+              </label>
+              <span>Spectate mode {spectateMode ? "ON" : "OFF"}</span>
+            </div>
+          )}
           {revealed && (
             <div className="average-closest-container">
               <div className={`average-card ${flipCard ? "flip" : ""}`}>
@@ -273,16 +318,16 @@ function App() {
             <div className="estimates">
               {users.map((user, index) => (
                 <div key={index} className="estimate-card">
-                  {revealed ? (
-                    <p>
-                      {
-                        estimates.find((est) => est.userName === user.name)
-                          ?.estimate
-                      }
-                    </p>
-                  ) : (
-                    <p>{hasUserVoted(user.name) ? "✔" : "?"}</p>
-                  )}
+                  <p>
+                    {revealed
+                      ? estimates.find((est) => est.userName === user.name)
+                          ?.estimate || "?"
+                      : user.spectate
+                      ? "👁️"
+                      : hasUserVoted(user.name)
+                      ? "✔"
+                      : "?"}
+                  </p>
                 </div>
               ))}
             </div>

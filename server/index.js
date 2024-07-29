@@ -1,4 +1,3 @@
-// server/index.js
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -23,6 +22,7 @@ app.use(express.static(path.join(__dirname, "../client/build")));
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/build", "index.html"));
 });
+
 const generateSessionId = () => {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -40,6 +40,7 @@ io.on("connection", (socket) => {
     const sessionId = generateSessionId();
     sessions[sessionId] = { users: [], estimates: [] };
     socket.join(sessionId);
+    console.log(`Session created: ${sessionId}`);
     callback(sessionId);
   });
 
@@ -47,8 +48,9 @@ io.on("connection", (socket) => {
     const session = sessions[sessionId];
     if (session) {
       if (!session.users.some((user) => user.name === userName)) {
-        session.users.push({ id: socket.id, name: userName });
+        session.users.push({ id: socket.id, name: userName, spectate: false });
         socket.join(sessionId);
+        console.log(`${userName} joined session ${sessionId}`);
         callback({ success: true });
         io.to(sessionId).emit("updateUsers", session.users);
       } else {
@@ -66,6 +68,9 @@ io.on("connection", (socket) => {
     const session = sessions[sessionId];
     if (session) {
       session.estimates.push({ userName, estimate });
+      console.log(
+        `Estimate received from ${userName} in session ${sessionId}: ${estimate}`
+      );
       io.to(sessionId).emit("receiveEstimate", { userName, estimate });
     }
   });
@@ -87,6 +92,20 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("toggleSpectateMode", ({ sessionId, userName, spectate }) => {
+    const session = sessions[sessionId];
+    if (session) {
+      const user = session.users.find((user) => user.name === userName);
+      if (user) {
+        user.spectate = spectate;
+        console.log(
+          `${userName} in session ${sessionId} set spectate mode to ${spectate}`
+        );
+        io.to(sessionId).emit("updateUsers", session.users);
+      }
+    }
+  });
+
   socket.on("disconnect", () => {
     console.log("A user disconnected");
     for (const sessionId in sessions) {
@@ -94,6 +113,7 @@ io.on("connection", (socket) => {
       session.users = session.users.filter((user) => user.id !== socket.id);
       if (session.users.length === 0) {
         delete sessions[sessionId];
+        console.log(`Session ${sessionId} deleted due to no users`);
       } else {
         io.to(sessionId).emit("updateUsers", session.users);
       }
