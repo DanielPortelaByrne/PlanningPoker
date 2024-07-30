@@ -7,8 +7,8 @@ import { Helmet } from "react-helmet";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// const socket = io("https://planning-poker-pointing-9f9b8406bb5e.herokuapp.com/");
-const socket = io("http://localhost:4000");
+const socket = io("https://planning-poker-pointing-9f9b8406bb5e.herokuapp.com/");
+// const socket = io("http://localhost:4000");
 
 const fibonacciSequence = [1, 2, 3, 5, 8, 13, 21];
 
