@@ -368,7 +368,8 @@ body {
 .session-card h2 {
   margin-top: 0;
   font-size: 1.5em;
-  color: #a0a0a0;
+  color: #c5c5c5;
+  /* font-weight: lighter; */
 }
 
 .session-card .input-container {
@@ -400,6 +401,7 @@ body {
   background-color: #007bff;
   color: white;
   border: none;
+  font-weight: bold;
   border-radius: 5px;
   font-size: 18px;
   cursor: pointer;
