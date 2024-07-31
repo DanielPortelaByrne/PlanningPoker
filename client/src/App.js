@@ -7,8 +7,8 @@ import { Helmet } from "react-helmet";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const socket = io("https://planning-poker-pointing-9f9b8406bb5e.herokuapp.com/");
-// const socket = io("http://localhost:4000");
+// const socket = io("https://planning-poker-pointing-9f9b8406bb5e.herokuapp.com/");
+const socket = io("http://localhost:4000");
 
 const fibonacciSequence = [1, 2, 3, 5, 8, 13, 21];
 
@@ -82,6 +82,20 @@ function App() {
     return () => socket.off();
   }, [users]);
 
+  const resetToJoinScreen = () => {
+    setSessionId("");
+    setUserName("");
+    setJoined(false);
+    setUsers([]);
+    setEstimates([]);
+    setSelectedCard(null);
+    setRevealed(false);
+    setIsHost(false);
+    setFlipCard(false);
+    setFlippedCards([]);
+    setSpectateMode(false);
+  };
+
   const createSession = () => {
     if (!userName.trim()) {
       toast.error("Please enter your name to create a session.");
@@ -123,10 +137,12 @@ function App() {
   };
 
   const sendEstimate = (card) => {
-    if (!spectateMode) {
-      setSelectedCard(card);
-      socket.emit("sendEstimate", { sessionId, estimate: card, userName });
+    if (spectateMode) {
+      toast.info("Switch off spectator mode to vote!");
+      return;
     }
+    setSelectedCard(card);
+    socket.emit("sendEstimate", { sessionId, estimate: card, userName });
   };
 
   const revealCards = () => {
@@ -163,13 +179,19 @@ function App() {
   };
 
   const toggleSpectateMode = () => {
-    setSpectateMode((prevMode) => !prevMode);
-    socket.emit("toggleSpectateMode", {
-      sessionId,
-      userName,
-      spectate: !spectateMode,
+    setSpectateMode((prevMode) => {
+      const newMode = !prevMode;
+      if (newMode) {
+        setSelectedCard(null); // Deselect the card when spectate mode is turned on
+      }
+      socket.emit("toggleSpectateMode", {
+        sessionId,
+        userName,
+        spectate: newMode,
+      });
+      console.log(`${userName} set spectate mode to ${newMode}`);
+      return newMode;
     });
-    console.log(`${userName} set spectate mode to ${!spectateMode}`);
   };
 
   const calculateAverageEstimate = () => {
@@ -282,7 +304,9 @@ function App() {
               src={require("./assets/images/PLANNING POKER.png")}
               alt="Logo"
               className="logo"
+              onClick={resetToJoinScreen}
             />
+            <span className="logo-tooltip">Home</span>
           </div>
           <div className="session-details">
             <div className="session-info">
@@ -337,16 +361,20 @@ function App() {
             <div className="estimates">
               {users.map((user, index) => (
                 <div key={index} className="estimate-card">
-                  <p>
-                    {revealed
-                      ? estimates.find((est) => est.userName === user.name)
-                          ?.estimate || "?"
-                      : user.spectate
-                      ? "👁️"
-                      : hasUserVoted(user.name)
-                      ? "✔"
-                      : "?"}
-                  </p>
+                  <div key={index} className="estimate-inner-card">
+                    <div key={index} className="estimate-innermost-card">
+                      <p>
+                        {revealed
+                          ? estimates.find((est) => est.userName === user.name)
+                              ?.estimate || "?"
+                          : user.spectate
+                          ? "👁️"
+                          : hasUserVoted(user.name)
+                          ? "✔"
+                          : "?"}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
