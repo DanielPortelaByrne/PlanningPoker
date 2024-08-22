@@ -201,15 +201,35 @@ body {
   background-color: #ffffff;
   border-radius: 10px;
   margin: 10px;
+
+  /* Center the content */
   display: flex;
   justify-content: center;
   align-items: center;
+
   color: rgb(83, 83, 83);
   font-size: 24px;
   font-weight: bold;
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease-in-out;
+}
+
+.card-image {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 90%; /* Adjust size as needed */
+  height: 92%; /* Adjust size as needed */
+  object-fit: cover; /* Ensures the image maintains its aspect ratio */
+  border-radius: 10px; /* Ensure the image follows the card's border radius */
+  z-index: 1; /* Keeps the image behind other content in the card */
+  transform: translate(-50%, -50%); /* Centers the image */
+}
+
+.card-text {
+  position: relative;
+  z-index: 2; /* Ensures the text is above the image */
 }
 
 .card:hover {
@@ -264,6 +284,21 @@ body {
   padding: 20px;
 }
 
+.session-container-input {
+  z-index: 2; /* Ensures the button is above the image and text */
+  font-family: "Oswald", Arial, sans-serif; /* Apply Oswald font */
+  width: 100%;
+  max-width: 250px; /* Adjust as needed to fit your card design */
+  padding: 10px;
+  margin: 10px 0;
+  border: 0px solid #ffffff;
+  border-radius: 5px;
+  font-size: 16px;
+  text-align: center;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease-in-out;
+}
+
 .logo-container {
   position: relative;
   display: inline-block;
@@ -304,30 +339,30 @@ body {
 
 /* General input styling */
 .input {
+  z-index: 3; /* Ensures the button is above the image and text */
   font-family: "Oswald", Arial, sans-serif; /* Apply Oswald font */
   width: 100%;
-  max-width: 400px;
+  max-width: 250px; /* Adjust as needed to fit your card design */
   padding: 10px;
   margin: 10px 0;
   border: 0px solid #ffffff;
   border-radius: 5px;
   font-size: 16px;
   text-align: center;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Subtle blue glow */
-  transition: box-shadow 0.3s ease-in-out; /* Smooth transition */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease-in-out;
 }
 
 /* Input hover state */
 .input:hover {
-  box-shadow: 0 0 10px rgba(189, 189, 189, 0.7); /* Brighter blue glow on hover */
+  box-shadow: 0 0 10px rgba(189, 189, 189, 0.7);
 }
 
 /* Input focus state */
 .input:focus {
-  box-shadow: 0 0 15px rgb(182, 182, 182); /* Brightest blue glow on focus */
-  outline: none; /* Remove default outline */
+  box-shadow: 0 0 15px rgb(182, 182, 182);
+  outline: none;
 }
-
 .input::placeholder {
   color: #c2c2c2; /* Blue color for the placeholder text */
   opacity: 1; /* Ensures the color is not translucent */
@@ -345,38 +380,84 @@ body {
 }
 
 .session-card-container {
-  display: flex;
-  justify-content: space-around;
-  width: 100%;
-  max-width: 800px;
-  margin-top: 20px;
-  gap: 20px;
+  position: relative;
+  height: 300px; /* Adjust as needed */
+  width: 600px; /* Adjust as needed */
 }
 
 .session-card {
-  background-color: #fff;
-  padding: 20px;
+  width: 250px;
+  height: 350px;
+  background-color: #ffffff;
   border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  width: 45%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(0deg);
+  transition: transform 0.5s ease-in-out;
+  cursor: pointer;
+
+  /* Centering content inside the card */
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
+  text-align: center;
 }
 
 .session-card h2 {
   margin-top: 0;
   font-size: 1.5em;
-  color: #c5c5c5;
+  color: #ffffff;
   /* font-weight: lighter; */
+}
+
+.session-card:nth-child(1) {
+  z-index: 2;
+}
+
+.session-card:nth-child(2) {
+  z-index: 1;
+}
+
+@keyframes dealLeft {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-150%, -50%) rotate(-10deg); /* Closer to the center */
+  }
+}
+
+@keyframes dealRight {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(50%, -50%) rotate(10deg); /* Closer to the center */
+  }
+}
+
+.deal-left {
+  animation: dealLeft 0.5s forwards;
+}
+
+.deal-right {
+  animation: dealRight 0.5s forwards;
+}
+
+.session-card:hover {
+  transform: translate(-50%, -50%) rotate(0deg) scale(1.05);
 }
 
 .session-card .input-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 90%;
+  justify-content: center;
+  width: 70%;
+  text-align: center; /* Ensures text is centered inside the container */
 }
 
 .session-title {
@@ -384,9 +465,9 @@ body {
   font-size: 18px;
   font-weight: bold;
   text-align: center;
-  width: 150px;
   margin-top: 5px;
   margin-bottom: -10px;
+  width: 100%; /* Ensures the title takes up full width */
 }
 
 .button-container {
@@ -397,9 +478,10 @@ body {
 
 .button {
   font-family: "Oswald", Arial, sans-serif; /* Apply Oswald font */
+  z-index: 3; /* Ensures the button is above the image and text */
   padding: 12px 24px;
-  background-color: #007bff;
-  color: white;
+  background-color: white;
+  color: #007bff;
   border: none;
   font-weight: bold;
   border-radius: 5px;

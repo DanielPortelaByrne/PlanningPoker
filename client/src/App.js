@@ -7,10 +7,10 @@ import { Helmet } from "react-helmet";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const socket = io(
-  "https://planning-poker-pointing-9f9b8406bb5e.herokuapp.com/"
-);
-// const socket = io("http://localhost:4000");
+// const socket = io(
+//   "https://planning-poker-pointing-9f9b8406bb5e.herokuapp.com/"
+// );
+const socket = io("http://localhost:4000");
 
 const fibonacciSequence = [1, 2, 3, 5, 8, 13, 21];
 
@@ -26,8 +26,10 @@ function App() {
   const [flipCard, setFlipCard] = useState(false);
   const [flippedCards, setFlippedCards] = useState([]);
   const [spectateMode, setSpectateMode] = useState(false);
+  const [dealAnimation, setDealAnimation] = useState(false);
 
   useEffect(() => {
+    setDealAnimation(true);
     console.log("App component rendered");
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -267,17 +269,29 @@ function App() {
             onKeyDown={(e) => {
               if (e.key === "Enter") joinSession(sessionId);
             }}
-            className="input"
+            className="session-container-input"
           />
           <div className="session-card-container">
-            <div className="session-card">
-              <h2>CREATE A NEW SESSION</h2>
-              <button onClick={createSession} className="button">
-                CREATE SESSION
+            <div className={`session-card ${dealAnimation ? "deal-left" : ""}`}>
+              <img
+                src={require("./assets/images/card_back.png")}
+                alt="Card Background"
+                className="card-image"
+              />
+              <h2 className="card-text">CREATE A SESSION</h2>
+              <button className="button" onClick={createSession}>
+                CREATE
               </button>
             </div>
-            <div className="session-card">
-              <h2>JOIN AN EXISTING SESSION</h2>
+            <div
+              className={`session-card ${dealAnimation ? "deal-right" : ""}`}
+            >
+              <img
+                src={require("./assets/images/card_back.png")}
+                alt="Card Background"
+                className="card-image"
+              />
+              <h2 className="card-text">JOIN A SESSION</h2>
               <div className="input-container">
                 <input
                   type="text"
@@ -290,10 +304,10 @@ function App() {
                   className="input"
                 />
                 <button
-                  onClick={() => joinSession(sessionId)}
                   className="button"
+                  onClick={() => joinSession(sessionId)}
                 >
-                  JOIN SESSION
+                  JOIN
                 </button>
               </div>
             </div>
