@@ -6,6 +6,13 @@ import { faUser, faShareAlt } from "@fortawesome/free-solid-svg-icons";
 import { Helmet } from "react-helmet";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import oneImg from "./assets/images/one.png";
+import twoImg from "./assets/images/two.png";
+import threeImg from "./assets/images/three.png";
+import fiveImg from "./assets/images/five.png";
+import eightImg from "./assets/images/eight.png";
+import thirteenImg from "./assets/images/thirteen.png";
+import twentyoneImg from "./assets/images/twentyone.png";
 
 // const socket = io(
 //   "https://planning-poker-pointing-9f9b8406bb5e.herokuapp.com/"
@@ -27,6 +34,15 @@ function App() {
   const [flippedCards, setFlippedCards] = useState([]);
   const [spectateMode, setSpectateMode] = useState(false);
   const [dealAnimation, setDealAnimation] = useState(false);
+  const cardImages = {
+    1: oneImg,
+    2: twoImg,
+    3: threeImg,
+    5: fiveImg,
+    8: eightImg,
+    13: thirteenImg,
+    21: twentyoneImg,
+  };
 
   useEffect(() => {
     setDealAnimation(true);
@@ -378,18 +394,21 @@ function App() {
               {users.map((user, index) => (
                 <div key={index} className="estimate-card">
                   <div key={index} className="estimate-inner-card">
-                    <div key={index} className="estimate-innermost-card">
-                      <p>
-                        {revealed
-                          ? estimates.find((est) => est.userName === user.name)
-                              ?.estimate || "?"
-                          : user.spectate
-                          ? "👁️"
-                          : hasUserVoted(user.name)
-                          ? "✔"
-                          : "?"}
-                      </p>
-                    </div>
+                    <img
+                      src={require("./assets/images/card_back.png")}
+                      alt="Card Background"
+                      className="card-image"
+                    />
+                    <p>
+                      {revealed
+                        ? estimates.find((est) => est.userName === user.name)
+                            ?.estimate || "?"
+                        : user.spectate
+                        ? "👁️"
+                        : hasUserVoted(user.name)
+                        ? "✔"
+                        : "?"}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -401,7 +420,12 @@ function App() {
                   className={`card ${selectedCard === card ? "selected" : ""}`}
                   onClick={() => sendEstimate(card)}
                 >
-                  {card}
+                  <img
+                    src={cardImages[card]}
+                    alt={`Card for ${card}`}
+                    className="card-image"
+                  />
+                  <p className="card-text">{card}</p>
                 </div>
               ))}
             </div>
