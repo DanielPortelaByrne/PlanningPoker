@@ -13,6 +13,13 @@ import fiveImg from "./assets/images/five.png";
 import eightImg from "./assets/images/eight.png";
 import thirteenImg from "./assets/images/thirteen.png";
 import twentyoneImg from "./assets/images/twentyone.png";
+import oneImgBlue from "./assets/images/one-blue.png";
+import twoImgBlue from "./assets/images/two-blue.png";
+import threeImgBlue from "./assets/images/three-blue.png";
+import fiveImgBlue from "./assets/images/five-blue.png";
+import eightImgBlue from "./assets/images/eight-blue.png";
+import thirteenImgBlue from "./assets/images/thirteen-blue.png";
+import twentyoneImgBlue from "./assets/images/twentyone-blue.png";
 import blue from "./assets/images/blue.png";
 import green from "./assets/images/green.png";
 import orange from "./assets/images/orange.png";
@@ -39,13 +46,13 @@ function App() {
   const [spectateMode, setSpectateMode] = useState(false);
   const [dealAnimation, setDealAnimation] = useState(false);
   const cardImages = {
-    1: oneImg,
-    2: twoImg,
-    3: threeImg,
-    5: fiveImg,
-    8: eightImg,
-    13: thirteenImg,
-    21: twentyoneImg,
+    1: { default: oneImg, selected: oneImgBlue },
+    2: { default: twoImg, selected: twoImgBlue },
+    3: { default: threeImg, selected: threeImgBlue },
+    5: { default: fiveImg, selected: fiveImgBlue },
+    8: { default: eightImg, selected: eightImgBlue },
+    13: { default: thirteenImg, selected: thirteenImgBlue },
+    21: { default: twentyoneImg, selected: twentyoneImgBlue },
   };
 
   // const backgroundImages = [blue, green, orange, purple];
@@ -440,7 +447,11 @@ function App() {
                   onClick={() => sendEstimate(card)}
                 >
                   <img
-                    src={cardImages[card]}
+                    src={
+                      selectedCard === card
+                        ? cardImages[card].selected
+                        : cardImages[card].default
+                    }
                     alt={`Card for ${card}`}
                     className="card-image"
                   />
