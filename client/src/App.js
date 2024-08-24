@@ -13,6 +13,10 @@ import fiveImg from "./assets/images/five.png";
 import eightImg from "./assets/images/eight.png";
 import thirteenImg from "./assets/images/thirteen.png";
 import twentyoneImg from "./assets/images/twentyone.png";
+import blue from "./assets/images/blue.png";
+import green from "./assets/images/green.png";
+import orange from "./assets/images/orange.png";
+import purple from "./assets/images/purple.png";
 
 // const socket = io(
 //   "https://planning-poker-pointing-9f9b8406bb5e.herokuapp.com/"
@@ -43,6 +47,13 @@ function App() {
     13: thirteenImg,
     21: twentyoneImg,
   };
+
+  // const backgroundImages = [blue, green, orange, purple];
+  const backgroundImages = [orange];
+
+  // Randomly select a background image
+  const randomBackgroundImage =
+    backgroundImages[Math.floor(Math.random() * backgroundImages.length)];
 
   useEffect(() => {
     setDealAnimation(true);
@@ -340,16 +351,23 @@ function App() {
             />
             <span className="logo-tooltip">Home</span>
           </div>
+
+          {/* New User ID Card Container */}
+          <div
+            className="user-id-card"
+            style={{ backgroundImage: `url(${randomBackgroundImage})` }}
+          >
+            <p className="user-id-text">{userName}</p>
+            <FontAwesomeIcon icon={faUser} className="user-icon" />
+          </div>
+
+          {/* Session Box */}
           <div className="session-details">
             <div className="session-info">
               <h2>SESSION ID: {sessionId}</h2>
               <button className="share-button" onClick={copySessionLink}>
-                <FontAwesomeIcon icon={faShareAlt} />
+                <FontAwesomeIcon icon={faShareAlt} /> Share
               </button>
-              <p className="user-name">
-                <FontAwesomeIcon icon={faUser} style={{ marginRight: "5px" }} />
-                {userName}
-              </p>
             </div>
             {!revealed && (
               <div className="spectate-toggle">
@@ -366,6 +384,7 @@ function App() {
             )}
           </div>
 
+          {/* Other Components */}
           {revealed && (
             <div className="average-closest-container">
               <div className={`average-card ${flipCard ? "flip" : ""}`}>

@@ -129,9 +129,10 @@ body {
 }
 
 .share-button {
-  background-color: #007bff; /* Green background */
+  font-family: "Oswald", Arial, sans-serif; /* Apply Oswald font */
+  background-color: white;
+  color: rgb(83, 83, 83);
   border: none;
-  color: white;
   padding: 10px 20px;
   text-align: center;
   text-decoration: none;
@@ -141,11 +142,12 @@ body {
   transition-duration: 0.4s;
   cursor: pointer;
   border-radius: 5px;
+  width: 100%;
 }
 
 .share-button:hover {
-  background-color: white;
-  color: rgb(83, 83, 83);
+  background-color: #007bff; /* Green background */
+  color: white;
   border: none;
 }
 
@@ -253,8 +255,10 @@ body {
 
 .session-details {
   position: absolute;
-  top: 20px;
+  padding: 20px;
+  top: 250px;
   right: 20px;
+  border-radius: 10px;
   background-color: transparent;
   color: rgb(255, 255, 255);
   padding: 12px 24px;
@@ -263,6 +267,7 @@ body {
 
 .session-info {
   display: flex;
+  width: 100%;
   flex-direction: column;
   align-items: flex-start;
   border-radius: 5px;
@@ -277,6 +282,39 @@ body {
 .user-name {
   font-size: 14px;
   margin-top: 5px;
+}
+
+.user-id-card {
+  width: 150px;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  background-color: white;
+  border-radius: 10px;
+  margin: 20px auto;
+  justify-content: center;
+  align-items: flex;
+  color: #333;
+  font-size: 24px;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: rotate(5deg); /* Slight tilt to the right */
+  position: relative;
+  position: absolute;
+  top: 10px;
+  right: 40px;
+}
+
+.user-id-text {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.user-icon {
+  font-size: 80px;
+  color: white;
 }
 
 .body {
@@ -525,7 +563,7 @@ body {
 }
 
 .user-names p {
-  color: #007bff;
+  color: #3596ff;
   font-size: 18px;
   font-weight: bold;
   text-align: center;
@@ -539,21 +577,31 @@ body {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  background-color: #83bfff;
+  background-color: #3596ff;
   padding: 10px;
   border-radius: 5px;
+  text-align: center; /* Center-align text */
+  align-items: center;
+  justify-content: center;
 }
 
 .spectate-toggle {
   display: flex;
   align-items: center;
+  justify-content: center;
   margin-top: 10px; /* Ensures it is right below the session-info */
   margin-left: 10px; /* Align it with the session-info content */
+  width: 100%;
 }
 
 .spectate-toggle h2 {
   font-size: 14px; /* Adjust size if needed */
   color: rgb(83, 83, 83); /* Ensure the text color is blue */
+  margin-right: 10px;
+}
+
+.spectate-toggle .switch {
+  flex-shrink: 0; /* Prevents shrinking when text changes */
 }
 
 .switch {
