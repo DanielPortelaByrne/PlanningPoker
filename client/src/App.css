@@ -4,12 +4,24 @@ body {
   margin: 0;
   padding: 0;
   background-color: #eeeeee;
+  height: 100%; /* Ensure body takes full height */
   font-family: "Oswald", Arial, sans-serif; /* Apply Oswald font */
+  background-image: url("./assets/images/background2.png"); /* Add this line */
+  background-size: cover; /* Ensure the image covers the entire background */
+  background-position: center; /* Center the background image */
+  background-repeat: no-repeat; /* Prevent repeating of the image */
 }
 
 .App {
   font-family: "Oswald", Arial, sans-serif; /* Apply Oswald font */
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
+  min-height: 100vh; /* Ensure it takes at least the full viewport height */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  overflow: hidden; /* Prevent scrolling */
 }
 
 .header {
@@ -328,8 +340,14 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 100vh; /* Full viewport height */
   padding: 20px;
+  box-sizing: border-box;
+}
+
+.session-container img {
+  max-width: 100%;
+  height: auto;
 }
 
 .session-container-input {

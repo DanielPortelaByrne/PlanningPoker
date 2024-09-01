@@ -1,0 +1,18 @@
+.footer {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  padding: 10px;
+  background-color: transparent;
+  color: #434343;
+  font-size: 14px;
+}
+
+.footer a {
+  color: #434343; /* LinkedIn blue color */
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
