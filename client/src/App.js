@@ -24,6 +24,7 @@ import blue from "./assets/images/blue.png";
 import green from "./assets/images/green.png";
 import orange from "./assets/images/orange.png";
 import purple from "./assets/images/purple.png";
+import KofiButton from "./components/KofiButton";
 
 const socket = io(
   "https://planning-poker-pointing-9f9b8406bb5e.herokuapp.com/"
@@ -288,6 +289,7 @@ function App() {
         draggable
         pauseOnHover
       />
+      <KofiButton />
       {!joined ? (
         <div className="session-container">
           <img
