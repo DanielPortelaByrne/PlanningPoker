@@ -296,7 +296,7 @@ function App() {
         <div className="session-container">
           <img
             src={require("./assets/images/PLANNING POKER.png")}
-            alt="Logo"
+            alt="Planning Poker tool logo for Agile teams"
             className="logo"
           />
           <input
@@ -313,7 +313,7 @@ function App() {
             <div className={`session-card ${dealAnimation ? "deal-left" : ""}`}>
               <img
                 src={require("./assets/images/card_back.png")}
-                alt="Card Background"
+                alt="Estimation Cards Card Background for Scrum Poker"
                 className="card-image"
               />
               <h2 className="card-text">CREATE A SESSION</h2>
@@ -326,7 +326,7 @@ function App() {
             >
               <img
                 src={require("./assets/images/card_back.png")}
-                alt="Card Background"
+                alt="Estimation Cards Card Background for Scrum Poker"
                 className="card-image"
               />
               <h2 className="card-text">JOIN A SESSION</h2>
@@ -356,7 +356,7 @@ function App() {
           <div className="logo-container">
             <img
               src={require("./assets/images/PLANNING POKER.png")}
-              alt="Logo"
+              alt="Planning Poker tool logo for Agile teams"
               className="logo"
               onClick={resetToJoinScreen}
             />
@@ -426,7 +426,7 @@ function App() {
                   <div key={index} className="estimate-inner-card">
                     <img
                       src={require("./assets/images/card_back.png")}
-                      alt="Card Background"
+                      alt="Estimation Cards Card Background for Scrum Poker"
                       className="card-image"
                     />
                     <p>
@@ -456,7 +456,7 @@ function App() {
                         ? cardImages[card].selected
                         : cardImages[card].default
                     }
-                    alt={`Card for ${card}`}
+                    alt={`Estimation Cards Card for Scrum Poker for ${card}`}
                     className="card-image"
                   />
                   <p className="card-text">{card}</p>
