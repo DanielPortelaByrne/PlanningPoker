@@ -3,13 +3,19 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const path = require("path");
-const sqlite3 = require("sqlite3").verbose();
-const db = new sqlite3.Database("./userlogs.db");
+const { Pool } = require("pg");
+
+// Use DATABASE_URL from Heroku or local env
+const pool = new Pool({
+  connectionString:
+    process.env.DATABASE_URL || "postgresql://localhost/planningpoker",
+});
 
 // Create logs table if it doesn't exist
-db.run(`
+pool.query(
+  `
   CREATE TABLE IF NOT EXISTS user_logs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     eventType TEXT,
     userName TEXT,
     sessionId TEXT,
@@ -18,7 +24,11 @@ db.run(`
     location TEXT,
     userAgent TEXT
   )
-`);
+`,
+  (err) => {
+    if (err) console.error("Error creating user_logs table:", err);
+  }
+);
 
 const app = express();
 app.use(cors());
@@ -167,9 +177,9 @@ io.on("connection", (socket) => {
     console.log("location:", logData.location);
     console.log("userAgent:", logData.userAgent);
 
-    db.run(
+    pool.query(
       `INSERT INTO user_logs (eventType, userName, sessionId, timestamp, details, location, userAgent)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
       [
         logData.eventType,
         logData.userName,
@@ -182,22 +192,6 @@ io.on("connection", (socket) => {
       (err) => {
         if (err) {
           console.error("Failed to log user event to DB:", err);
-          console.error("DB values:", [
-            logData.eventType,
-            logData.userName,
-            logData.sessionId,
-            logData.timestamp,
-            JSON.stringify(logData.details),
-            logData.location,
-            logData.userAgent,
-          ]);
-        } else {
-          console.log(
-            "User event successfully logged to DB:",
-            logData.eventType,
-            logData.userName,
-            logData.sessionId
-          );
         }
       }
     );
