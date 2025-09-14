@@ -66,7 +66,6 @@ function App() {
 
   useEffect(() => {
     setDealAnimation(true);
-    console.log("App component rendered");
 
     const urlParams = new URLSearchParams(window.location.search);
     const sessionCodeFromUrl = urlParams.get("session");
@@ -76,7 +75,6 @@ function App() {
     }
 
     socket.on("receiveEstimate", (estimate) => {
-      console.log("Received estimate:", estimate);
       setEstimates((prev) => {
         const index = prev.findIndex(
           (est) => est.userName === estimate.userName
@@ -92,12 +90,10 @@ function App() {
     });
 
     socket.on("updateUsers", (users) => {
-      console.log("Updated users:", users);
       setUsers(users);
     });
 
     socket.on("revealCards", () => {
-      console.log("revealCards event received");
       setRevealed(true);
       setFlipCard(true);
       setFlippedCards(users.map((user, index) => index));
@@ -111,7 +107,6 @@ function App() {
     });
 
     socket.on("resetVote", () => {
-      console.log("resetVote event received");
       setEstimates([]);
       setSelectedCard(null);
       setRevealed(false);
@@ -161,7 +156,6 @@ function App() {
 
     socket.emit("joinSession", { sessionId, userName }, (response) => {
       if (response.success) {
-        console.log("Joined session!");
         setJoined(true);
         setEstimates(response.estimates || []);
         setRevealed(response.revealed || false);
@@ -170,7 +164,6 @@ function App() {
           setFlippedCards(users.map((user, index) => index));
         }
       } else {
-        console.log("Failed to join session:", response.message);
         toast.error(response.message);
       }
     });
@@ -189,13 +182,6 @@ function App() {
     const numberOfUsers = users.filter((user) => !user.spectate).length;
     const numberOfEstimates = estimates.length;
 
-    console.log(
-      "Number of users (excluding spectators):",
-      numberOfUsers,
-      "Number of estimates:",
-      numberOfEstimates
-    );
-
     if (numberOfEstimates < numberOfUsers) {
       toast.warn("Wait for all participants to submit their estimates.");
       return;
@@ -205,12 +191,10 @@ function App() {
   };
 
   const resetVote = () => {
-    console.log("resetVote called");
     socket.emit("resetVote", sessionId);
   };
 
   const handleButtonClick = () => {
-    console.log("handleButtonClick called, revealed:", revealed);
     if (revealed) {
       resetVote();
     } else {
@@ -229,7 +213,6 @@ function App() {
         userName,
         spectate: newMode,
       });
-      console.log(`${userName} set spectate mode to ${newMode}`);
       return newMode;
     });
   };
