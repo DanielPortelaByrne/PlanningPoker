@@ -30,6 +30,7 @@
     "react-scripts": "5.0.1",
     "react-toastify": "^10.0.5",
     "socket.io": "^4.7.5",
+    "sqlite3": "^5.1.7",
     "web-vitals": "^2.1.4"
   },
   "engines": {

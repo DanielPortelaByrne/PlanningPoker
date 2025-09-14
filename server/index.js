@@ -3,6 +3,22 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const path = require("path");
+const sqlite3 = require("sqlite3").verbose();
+const db = new sqlite3.Database("./userlogs.db");
+
+// Create logs table if it doesn't exist
+db.run(`
+  CREATE TABLE IF NOT EXISTS user_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    eventType TEXT,
+    userName TEXT,
+    sessionId TEXT,
+    timestamp TEXT,
+    details TEXT,
+    location TEXT,
+    userAgent TEXT
+  )
+`);
 
 const app = express();
 app.use(cors());
@@ -131,6 +147,60 @@ io.on("connection", (socket) => {
         io.to(sessionId).emit("updateUsers", session.users);
       }
     }
+  });
+
+  socket.on("userEventLog", (logData) => {
+    console.log("userEventLog handler triggered");
+
+    if (!logData) {
+      console.error("No logData received!");
+      return;
+    }
+
+    // Log all fields for debugging
+    console.log("Raw logData:", logData);
+    console.log("eventType:", logData.eventType);
+    console.log("userName:", logData.userName);
+    console.log("sessionId:", logData.sessionId);
+    console.log("timestamp:", logData.timestamp);
+    console.log("details:", logData.details);
+    console.log("location:", logData.location);
+    console.log("userAgent:", logData.userAgent);
+
+    db.run(
+      `INSERT INTO user_logs (eventType, userName, sessionId, timestamp, details, location, userAgent)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        logData.eventType,
+        logData.userName,
+        logData.sessionId,
+        logData.timestamp,
+        JSON.stringify(logData.details),
+        logData.location,
+        logData.userAgent,
+      ],
+      (err) => {
+        if (err) {
+          console.error("Failed to log user event to DB:", err);
+          console.error("DB values:", [
+            logData.eventType,
+            logData.userName,
+            logData.sessionId,
+            logData.timestamp,
+            JSON.stringify(logData.details),
+            logData.location,
+            logData.userAgent,
+          ]);
+        } else {
+          console.log(
+            "User event successfully logged to DB:",
+            logData.eventType,
+            logData.userName,
+            logData.sessionId
+          );
+        }
+      }
+    );
   });
 });
 

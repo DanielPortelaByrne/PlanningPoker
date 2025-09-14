@@ -27,10 +27,10 @@ import purple from "./assets/images/purple.png";
 import KofiButton from "./components/KofiButton";
 import Footer from "./components/Footer";
 
-const socket = io(
-  "https://planning-poker-pointing-9f9b8406bb5e.herokuapp.com/"
-);
-// const socket = io("http://localhost:4000");
+// const socket = io(
+//   "https://planning-poker-pointing-9f9b8406bb5e.herokuapp.com/"
+// );
+const socket = io("http://localhost:4000");
 
 const fibonacciSequence = [1, 2, 3, 5, 8, 13, 21];
 
@@ -131,6 +131,19 @@ function App() {
     setSpectateMode(false);
   };
 
+  // Add user event logging function
+  const logUserEvent = (eventType, details = {}) => {
+    socket.emit("userEventLog", {
+      eventType,
+      userName,
+      sessionId,
+      timestamp: new Date().toISOString(),
+      details,
+      location: window.location.href,
+      userAgent: navigator.userAgent,
+    });
+  };
+
   const createSession = () => {
     if (!userName.trim()) {
       toast.error("Please enter your name to create a session.");
@@ -141,6 +154,7 @@ function App() {
       setSessionId(sessionId);
       setIsHost(true);
       joinSession(sessionId);
+      logUserEvent("createSession");
     });
   };
 
@@ -163,6 +177,7 @@ function App() {
           setFlipCard(true);
           setFlippedCards(users.map((user, index) => index));
         }
+        logUserEvent("joinSession");
       } else {
         toast.error(response.message);
       }
@@ -176,6 +191,7 @@ function App() {
     }
     setSelectedCard(card);
     socket.emit("sendEstimate", { sessionId, estimate: card, userName });
+    logUserEvent("sendEstimate", { estimate: card });
   };
 
   const revealCards = () => {
@@ -188,10 +204,12 @@ function App() {
     }
 
     socket.emit("revealCards", sessionId);
+    logUserEvent("revealCards");
   };
 
   const resetVote = () => {
     socket.emit("resetVote", sessionId);
+    logUserEvent("resetVote");
   };
 
   const handleButtonClick = () => {
@@ -213,6 +231,7 @@ function App() {
         userName,
         spectate: newMode,
       });
+      logUserEvent("toggleSpectateMode", { spectate: newMode });
       return newMode;
     });
   };
