@@ -26,6 +26,15 @@ import orange from "./assets/images/orange.png";
 import purple from "./assets/images/purple.png";
 import KofiButton from "./components/KofiButton";
 import Footer from "./components/Footer";
+import orangeBackground from "./assets/images/orange.png";
+import defaultCardBack from "./assets/images/card_back.png";
+import defaultPlanningPokerLogo from "./assets/images/PLANNING POKER.png";
+
+// Frutiger Aero theme images
+import frutigerBackground from "./assets/frutigerAeroImages/background.png";
+import frutigerCardBack from "./assets/frutigerAeroImages/card_back.png";
+import frutigerPlanningPoker from "./assets/frutigerAeroImages/PLANNING POKER.png";
+import background2 from "./assets/images/background2.png";
 
 // const socket = io(
 //   "https://planning-poker-pointing-9f9b8406bb5e.herokuapp.com/"
@@ -47,6 +56,9 @@ function App() {
   const [flippedCards, setFlippedCards] = useState([]);
   const [spectateMode, setSpectateMode] = useState(false);
   const [dealAnimation, setDealAnimation] = useState(false);
+  const [frutigerAero, setFrutigerAero] = useState(false);
+  const [themeAnimation, setThemeAnimation] = useState(false);
+
   const cardImages = {
     1: { default: oneImg, selected: oneImgBlue },
     2: { default: twoImg, selected: twoImgBlue },
@@ -57,12 +69,18 @@ function App() {
     21: { default: twentyoneImg, selected: twentyoneImgBlue },
   };
 
-  // const backgroundImages = [blue, green, orange, purple];
-  const backgroundImages = [orange];
+  // Theme-aware images (use imports, not require)
+  const backgroundImage = frutigerAero
+    ? frutigerBackground
+    : background2;
 
-  // Randomly select a background image
-  const randomBackgroundImage =
-    backgroundImages[Math.floor(Math.random() * backgroundImages.length)];
+  const cardBackImage = frutigerAero
+    ? frutigerCardBack
+    : defaultCardBack;
+
+  const planningPokerLogo = frutigerAero
+    ? frutigerPlanningPoker
+    : defaultPlanningPokerLogo;
 
   useEffect(() => {
     setDealAnimation(true);
@@ -273,9 +291,29 @@ function App() {
     return estimates.some((est) => est.userName === userName);
   };
 
+  // Animation handler for theme toggle
+  const handleThemeToggle = () => {
+    setFrutigerAero((prev) => !prev);
+    if (!joined) {
+      setDealAnimation(false);
+      setTimeout(() => setDealAnimation(true), 10); // Restart animation
+    }
+  };
+
   return (
-    <div className="App">
-      <Helmet>
+    <div
+      className={`app-container${frutigerAero ? " frutiger-aero" : ""}`}
+      style={{
+        height: "100vh",
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        width: "100vw",
+        overflow: "auto",
+      }}
+    >
+    <Helmet>
         <link
           href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap"
           rel="stylesheet"
@@ -294,10 +332,23 @@ function App() {
       />
       <KofiButton />
       <Footer />
+      {/* Theme toggle banner */}
+      <div className="theme-toggle-banner">
+        <span>New! Frutiger Aero Theme</span>
+        <label className="switch">
+          <input
+            type="checkbox"
+            checked={frutigerAero}
+            onChange={handleThemeToggle}
+          />
+          <span className="slider"></span>
+        </label>
+      </div>
+
       {!joined ? (
         <div className="session-container">
           <img
-            src={require("./assets/images/PLANNING POKER.png")}
+            src={planningPokerLogo}
             alt="Planning Poker tool logo for Agile teams"
             className="logo"
           />
@@ -314,7 +365,7 @@ function App() {
           <div className="session-card-container">
             <div className={`session-card ${dealAnimation ? "deal-left" : ""}`}>
               <img
-                src={require("./assets/images/card_back.png")}
+                src={cardBackImage}
                 alt="Estimation Cards Card Background for Scrum Poker"
                 className="card-image"
               />
@@ -327,7 +378,7 @@ function App() {
               className={`session-card ${dealAnimation ? "deal-right" : ""}`}
             >
               <img
-                src={require("./assets/images/card_back.png")}
+                src={cardBackImage}
                 alt="Estimation Cards Card Background for Scrum Poker"
                 className="card-image"
               />
@@ -357,7 +408,7 @@ function App() {
         <div className="table">
           <div className="logo-container">
             <img
-              src={require("./assets/images/PLANNING POKER.png")}
+              src={planningPokerLogo}
               alt="Planning Poker tool logo for Agile teams"
               className="logo"
               onClick={resetToJoinScreen}
@@ -368,7 +419,7 @@ function App() {
           {/* New User ID Card Container */}
           <div
             className="user-id-card"
-            style={{ backgroundImage: `url(${randomBackgroundImage})` }}
+            style={{ backgroundImage: `url(${frutigerAero ? frutigerBackground : orange})` }}
           >
             <p className="user-id-text">{userName}</p>
             <FontAwesomeIcon icon={faUser} className="user-icon" />
@@ -427,7 +478,7 @@ function App() {
                 <div key={index} className="estimate-card">
                   <div key={index} className="estimate-inner-card">
                     <img
-                      src={require("./assets/images/card_back.png")}
+                      src={frutigerAero ? frutigerCardBack : cardBackImage}
                       alt="Estimation Cards Card Background for Scrum Poker"
                       className="card-image"
                     />

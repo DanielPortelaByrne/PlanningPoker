@@ -6,7 +6,6 @@ body {
   background-color: #eeeeee;
   height: 100%; /* Ensure body takes full height */
   font-family: "Oswald", Arial, sans-serif; /* Apply Oswald font */
-  background-image: url("./assets/images/background2.png"); /* Add this line */
   background-size: cover; /* Ensure the image covers the entire background */
   background-position: center; /* Center the background image */
   background-repeat: no-repeat; /* Prevent repeating of the image */
@@ -671,4 +670,128 @@ input:checked + .slider:before {
 .spectate-toggle span {
   font-size: 14px;
   color: white;
+}
+
+.theme-toggle-banner {
+  position: fixed;
+  right: 32px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.85);
+  border-radius: 16px;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.theme-toggle-banner span {
+  font-weight: bold;
+  margin-right: 16px;
+  color: #0077c2;
+}
+
+/* Toggle switch styling */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  border-radius: 24px;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #0077c2;
+}
+
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+
+/* Example theme class */
+.frutiger-aero-theme {
+  /* Add your theme styles here, e.g. background, colors, etc. */
+  background: linear-gradient(135deg, #d0f4ff 0%, #aee1f9 100%);
+}
+
+/* When Frutiger Aero theme is active, make the card image fill the card */
+.frutiger-aero .estimate-inner-card .card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  background: none;
+}
+
+/* Remove border and padding for card images when Frutiger Aero theme is active */
+.frutiger-aero .session-card,
+.frutiger-aero .estimate-inner-card {
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.frutiger-aero .card-image {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 12px !important;
+  background: none !important;
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.591);
+}
+
+/* Import Frutiger Aero font (example using Oswald as placeholder, replace with actual Frutiger Aero font if available) */
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap');
+
+/* Apply Frutiger Aero font to all text */
+body,
+html,
+.App,
+app-container,
+* {
+  font-family: 'Oswald', Arial, sans-serif;
+}
+
+/* User names above cards default styling */
+.user-names p {
+  color: #3596ff;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  width: 150px;
+  margin-top: 5px;
+  margin-bottom: -10px;
+}
+
+/* When Frutiger Aero theme is active, user names above cards are white */
+.frutiger-aero .user-names p {
+  color: #fff !important;
 }
