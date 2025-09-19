@@ -3,6 +3,32 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const path = require("path");
+const { Pool } = require("pg");
+
+// Use DATABASE_URL from Heroku or local env
+const pool = new Pool({
+  connectionString:
+    process.env.DATABASE_URL || "postgresql://localhost/planningpoker",
+});
+
+// Create logs table if it doesn't exist
+pool.query(
+  `
+  CREATE TABLE IF NOT EXISTS user_logs (
+    id SERIAL PRIMARY KEY,
+    eventType TEXT,
+    userName TEXT,
+    sessionId TEXT,
+    timestamp TEXT,
+    details TEXT,
+    location TEXT,
+    userAgent TEXT
+  )
+`,
+  (err) => {
+    if (err) console.error("Error creating user_logs table:", err);
+  }
+);
 
 const app = express();
 app.use(cors());
@@ -131,6 +157,44 @@ io.on("connection", (socket) => {
         io.to(sessionId).emit("updateUsers", session.users);
       }
     }
+  });
+
+  socket.on("userEventLog", (logData) => {
+    console.log("userEventLog handler triggered");
+
+    if (!logData) {
+      console.error("No logData received!");
+      return;
+    }
+
+    // Log all fields for debugging
+    console.log("Raw logData:", logData);
+    console.log("eventType:", logData.eventType);
+    console.log("userName:", logData.userName);
+    console.log("sessionId:", logData.sessionId);
+    console.log("timestamp:", logData.timestamp);
+    console.log("details:", logData.details);
+    console.log("location:", logData.location);
+    console.log("userAgent:", logData.userAgent);
+
+    pool.query(
+      `INSERT INTO user_logs (eventType, userName, sessionId, timestamp, details, location, userAgent)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [
+        logData.eventType,
+        logData.userName,
+        logData.sessionId,
+        logData.timestamp,
+        JSON.stringify(logData.details),
+        logData.location,
+        logData.userAgent,
+      ],
+      (err) => {
+        if (err) {
+          console.error("Failed to log user event to DB:", err);
+        }
+      }
+    );
   });
 });
 
