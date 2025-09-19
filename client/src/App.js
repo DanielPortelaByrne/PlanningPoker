@@ -36,10 +36,10 @@ import frutigerCardBack from "./assets/frutigerAeroImages/card_back.png";
 import frutigerPlanningPoker from "./assets/frutigerAeroImages/PLANNING POKER.png";
 import background2 from "./assets/images/background2.png";
 
-// const socket = io(
-//   "https://planning-poker-pointing-9f9b8406bb5e.herokuapp.com/"
-// );
-const socket = io("http://localhost:4000");
+const socket = io(
+  "https://planning-poker-pointing-9f9b8406bb5e.herokuapp.com/"
+);
+// const socket = io("http://localhost:4000");
 
 const fibonacciSequence = [1, 2, 3, 5, 8, 13, 21];
 
